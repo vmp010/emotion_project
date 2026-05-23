@@ -1,0 +1,45 @@
+version: "3.8"
+
+services:
+  influxdb:
+    image: influxdb:2
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+      - influxdb_config:/etc/influxdb2
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: admin123456
+      DOCKER_INFLUXDB_INIT_ORG: emotion-org
+      DOCKER_INFLUXDB_INIT_BUCKET: emotion-bucket
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: emotion-super-token
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin123456
+    depends_on:
+      - influxdb
+
+  ai_app:
+    build: .
+    container_name: emotion_ai_app
+    restart: always
+    devices:
+      - "/dev/video0:/dev/video0" # 把樹莓派的實體相機傳進 Docker 裡
+    depends_on:
+      - influxdb
+
+volumes:
+  influxdb_data:
+  influxdb_config:
+  grafana_data:
