@@ -14,3 +14,4 @@
 python main.py
 
 ## 按 q 鍵離開程式
+test
