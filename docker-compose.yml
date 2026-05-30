@@ -12,7 +12,7 @@ services:
     environment:
       DOCKER_INFLUXDB_INIT_MODE: setup
       DOCKER_INFLUXDB_INIT_USERNAME: admin
-      DOCKER_INFLUXDB_INIT_PASSWORD: admin123456
+      DOCKER_INFLUXDB_INIT_PASSWORD:  
       DOCKER_INFLUXDB_INIT_ORG: emotion-org
       DOCKER_INFLUXDB_INIT_BUCKET: emotion-bucket
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: emotion-super-token
@@ -35,15 +35,17 @@ services:
     container_name: emotion_ai_app
     restart: always
     devices:
-      # Camera Module v3 需要的 libcamera 設備節點
       - "/dev/media0:/dev/media0"
       - "/dev/media1:/dev/media1"
+      - "/dev/media2:/dev/media2"
       - "/dev/video0:/dev/video0"
-      - "/dev/video10:/dev/video10"
-      - "/dev/video11:/dev/video11"
-      - "/dev/video12:/dev/video12"
+      - "/dev/video1:/dev/video1"
+      - "/dev/video2:/dev/video2"
+      - "/dev/video3:/dev/video3"
       - "/dev/v4l-subdev0:/dev/v4l-subdev0"
       - "/dev/v4l-subdev1:/dev/v4l-subdev1"
+      - "/dev/v4l-subdev2:/dev/v4l-subdev2"
+      - "/dev/v4l-subdev3:/dev/v4l-subdev3"
     depends_on:
       - influxdb
 

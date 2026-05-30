@@ -122,6 +122,7 @@ def write_metrics_to_influx(
         .field("face_count", int(face_count))
         .field("face_width", int(face_width))
         .field("face_height", int(face_height))
+        .field("quality", quality_msg if quality_msg else "unknown")
         .field("happy", float(scores.get("happy", 0.0)))
         .field("sad", float(scores.get("sad", 0.0)))
         .field("angry", float(scores.get("angry", 0.0)))
