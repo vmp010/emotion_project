@@ -35,7 +35,15 @@ services:
     container_name: emotion_ai_app
     restart: always
     devices:
-      - "/dev/video0:/dev/video0" # 把樹莓派的實體相機傳進 Docker 裡
+      # Camera Module v3 需要的 libcamera 設備節點
+      - "/dev/media0:/dev/media0"
+      - "/dev/media1:/dev/media1"
+      - "/dev/video0:/dev/video0"
+      - "/dev/video10:/dev/video10"
+      - "/dev/video11:/dev/video11"
+      - "/dev/video12:/dev/video12"
+      - "/dev/v4l-subdev0:/dev/v4l-subdev0"
+      - "/dev/v4l-subdev1:/dev/v4l-subdev1"
     depends_on:
       - influxdb
 

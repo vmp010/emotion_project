@@ -4,3 +4,4 @@ fer==22.2.0
 Pillow
 tensorflow
 influxdb-client
+picamera2

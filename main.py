@@ -8,12 +8,13 @@ import threading
 import influxdb_client
 from influxdb_client import Point
 from influxdb_client.client.write_api import SYNCHRONOUS
+from picamera2 import Picamera2
 
 # =========================
 # 基本設定
 # =========================
 MODEL_PATH = "face_landmarker.task"
-CAM_INDEX = 0
+CAMERA_SOURCE = "picamera2"
 SHOW_LANDMARKS = False
 
 # 效能 / 準確率平衡
@@ -112,8 +113,8 @@ def write_metrics_to_influx(
 
     point = (
         Point(INFLUX_MEASUREMENT)
-        .tag("source", "webcam")
-        .tag("camera_index", str(CAM_INDEX))
+        .tag("source", CAMERA_SOURCE)
+        .tag("camera_index", CAMERA_SOURCE)
         .tag("dominant_emotion", dominant_emotion if dominant_emotion else "unknown")
         .tag("quality", quality_msg if quality_msg else "unknown")
         .field("fps", float(fps))
@@ -357,18 +358,19 @@ def emotion_worker():
 # =========================
 # 主程式
 # =========================
-cap = cv2.VideoCapture(CAM_INDEX)
-if not cap.isOpened():
-    print("無法打開攝影機")
-    raise SystemExit
+picam2 = Picamera2()
+config = picam2.create_preview_configuration(
+    main={"size": (640, 480), "format": "BGR888"}
+)
+picam2.configure(config)
+picam2.start()
+time.sleep(1)
 
 prev_time = time.time()
 
 with FaceLandmarker.create_from_options(options) as landmarker:
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
+    while True:
+        frame = picam2.capture_array()
 
         frame_count += 1
         display_frame = frame.copy()
@@ -476,6 +478,6 @@ with FaceLandmarker.create_from_options(options) as landmarker:
         elif key == ord('l'):
             SHOW_LANDMARKS = not SHOW_LANDMARKS
 
-cap.release()
+picam2.stop()
 cv2.destroyAllWindows()
 client.close()
