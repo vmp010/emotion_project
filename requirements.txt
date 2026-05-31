@@ -1,7 +1,6 @@
-opencv-python
-mediapipe
+numpy<2
+mediapipe==0.10.18
 fer==22.2.0
 Pillow
 tensorflow
 influxdb-client
-picamera2

@@ -40,10 +40,10 @@ WRITE_INTERVAL = 1.0  # 每 1 秒寫一次 InfluxDB
 emotion_labels = ['happy', 'sad', 'angry', 'neutral']
 
 TARGET_EMOTIONS_ZH = {
-    'happy': '開心',
-    'sad': '難過',
-    'angry': '憤怒',
-    'neutral': '平靜'
+    'happy': 'Happy',
+    'sad': 'Sad',
+    'angry': 'Angry',
+    'neutral': 'Neutral'
 }
 
 EMOTION_COLORS = {
@@ -165,10 +165,10 @@ emotion_detector = FER(mtcnn=False)
 frame_count = 0
 last_box = None
 current_emotion_key = None
-current_emotion_text = "未偵測"
+current_emotion_text = "No face"
 current_color = (255, 255, 255)
 current_scores = {e: 0.0 for e in emotion_labels}
-latest_quality_msg = "等待偵測"
+latest_quality_msg = "Waiting"
 
 analysis_lock = threading.Lock()
 is_analyzing = False
@@ -213,20 +213,20 @@ def get_refined_face_bbox(landmarks, frame_shape):
 
 def check_face_quality(face_roi):
     if face_roi is None or face_roi.size == 0:
-        return False, "無臉部"
+        return False, "No face"
 
     h, w = face_roi.shape[:2]
     if w < MIN_FACE_SIZE or h < MIN_FACE_SIZE:
-        return False, "臉太小"
+        return False, "Face too small"
 
     gray = cv2.cvtColor(face_roi, cv2.COLOR_BGR2GRAY)
     brightness = float(np.mean(gray))
     sharpness = cv2.Laplacian(gray, cv2.CV_64F).var()
 
     if brightness < 20:
-        return False, "太暗"
+        return False, "Too dark"
     if sharpness < 15:
-        return False, "太模糊"
+        return False, "Too blurry"
 
     return True, "OK"
 
@@ -346,9 +346,9 @@ def emotion_worker():
 
                 latest_quality_msg = "OK"
             else:
-                latest_quality_msg = "無情緒"
+                latest_quality_msg = "No emotion"
         except Exception:
-            latest_quality_msg = "分析失敗"
+            latest_quality_msg = "Analysis failed"
 
         with analysis_lock:
             if pending_roi is None:
@@ -436,7 +436,7 @@ with FaceLandmarker.create_from_options(options) as landmarker:
 
         display_frame = put_chinese_text(display_frame, current_emotion_text, (10, 10), current_color, FONT)
         display_frame = put_chinese_text(display_frame, f"FPS: {fps:.1f}", (10, 45), (255, 255, 0), FONT_SMALL)
-        display_frame = put_chinese_text(display_frame, f"品質: {latest_quality_msg}", (10, 75), (200, 200, 200), FONT_TINY)
+        display_frame = put_chinese_text(display_frame, f"Quality: {latest_quality_msg}", (10, 75), (200, 200, 200), FONT_TINY)
 
         display_frame = draw_emotion_panel(display_frame, current_scores, x=10, y=120, w=300, row_h=34)
 
@@ -469,7 +469,7 @@ with FaceLandmarker.create_from_options(options) as landmarker:
                 )
                 last_write_time = now
             except Exception as e:
-                print("InfluxDB 寫入失敗:", e)
+                print("InfluxDB write failed:", e)
 
         # cv2.imshow("Fast Emotion Detection", display_frame)
 

@@ -12,7 +12,7 @@ services:
     environment:
       DOCKER_INFLUXDB_INIT_MODE: setup
       DOCKER_INFLUXDB_INIT_USERNAME: admin
-      DOCKER_INFLUXDB_INIT_PASSWORD:  
+      DOCKER_INFLUXDB_INIT_PASSWORD: admin123456
       DOCKER_INFLUXDB_INIT_ORG: emotion-org
       DOCKER_INFLUXDB_INIT_BUCKET: emotion-bucket
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: emotion-super-token
@@ -33,19 +33,16 @@ services:
   ai_app:
     build: .
     container_name: emotion_ai_app
-    restart: always
-    devices:
-      - "/dev/media0:/dev/media0"
-      - "/dev/media1:/dev/media1"
-      - "/dev/media2:/dev/media2"
-      - "/dev/video0:/dev/video0"
-      - "/dev/video1:/dev/video1"
-      - "/dev/video2:/dev/video2"
-      - "/dev/video3:/dev/video3"
-      - "/dev/v4l-subdev0:/dev/v4l-subdev0"
-      - "/dev/v4l-subdev1:/dev/v4l-subdev1"
-      - "/dev/v4l-subdev2:/dev/v4l-subdev2"
-      - "/dev/v4l-subdev3:/dev/v4l-subdev3"
+    restart: "no"
+    profiles:
+      - camera
+    privileged: true
+    volumes:
+      - /dev:/dev
+      - /run/udev:/run/udev:ro
+      - /sys:/sys:ro
+    environment:
+      - LIBCAMERA_LOG_LEVELS=*:3
     depends_on:
       - influxdb
 
