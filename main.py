@@ -3,6 +3,7 @@ import mediapipe as mp
 from fer import FER
 from PIL import ImageFont, ImageDraw, Image
 import numpy as np
+import os
 import time
 import threading
 import influxdb_client
@@ -29,11 +30,12 @@ MIN_CONFIDENCE = 0.10
 # Python 在主機跑、InfluxDB 在 Docker 跑時，使用 localhost
 # 若之後 Python 也容器化，再改成 http://influxdb:8086
 # =========================
-INFLUX_URL = "http://influxdb:8086"
-INFLUX_TOKEN = "emotion-super-token"
-INFLUX_ORG = "emotion-org"
-INFLUX_BUCKET = "emotion-bucket"
+INFLUX_URL = os.getenv("INFLUX_URL", "http://localhost:8086")
+INFLUX_TOKEN = os.getenv("INFLUX_TOKEN", "emotion-super-token")
+INFLUX_ORG = os.getenv("INFLUX_ORG", "emotion-org")
+INFLUX_BUCKET = os.getenv("INFLUX_BUCKET", "emotion-bucket")
 INFLUX_MEASUREMENT = "emotion_metrics"
+INFLUX_TIMEOUT_MS = int(os.getenv("INFLUX_TIMEOUT_MS", "1000"))
 
 WRITE_INTERVAL = 1.0  # 每 1 秒寫一次 InfluxDB
 
@@ -90,7 +92,8 @@ def put_chinese_text(frame, text, position, color, font=None):
 client = influxdb_client.InfluxDBClient(
     url=INFLUX_URL,
     token=INFLUX_TOKEN,
-    org=INFLUX_ORG
+    org=INFLUX_ORG,
+    timeout=INFLUX_TIMEOUT_MS
 )
 write_api = client.write_api(write_options=SYNCHRONOUS)
 
@@ -457,6 +460,7 @@ with FaceLandmarker.create_from_options(options) as landmarker:
         # =========================
         now = time.time()
         if now - last_write_time >= WRITE_INTERVAL:
+            last_write_time = now
             try:
                 write_metrics_to_influx(
                     fps=fps,
@@ -467,7 +471,6 @@ with FaceLandmarker.create_from_options(options) as landmarker:
                     scores=current_scores.copy(),
                     bbox=last_box
                 )
-                last_write_time = now
             except Exception as e:
                 print("InfluxDB write failed:", e)
 
