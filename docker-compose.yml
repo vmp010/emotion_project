@@ -46,6 +46,17 @@ services:
     depends_on:
       - influxdb
 
+  web_app:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: emotion_web
+    ports:
+      - "5000:5000"
+    depends_on:
+      - influxdb
+    restart: always
+
 volumes:
   influxdb_data:
   influxdb_config:
