@@ -326,7 +326,8 @@ def emotion_worker():
 
         try:
             face_input = preprocess_face(face_roi)
-            emotions = emotion_detector.detect_emotions(face_input)
+            h, w = face_input.shape[:2]
+            emotions = emotion_detector.detect_emotions(face_input, face_rectangles=[(0, 0, w, h)])
 
             if emotions:
                 raw_scores = emotions[0].get("emotions", {})
