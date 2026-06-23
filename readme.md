@@ -217,3 +217,19 @@ rpicam-hello -t 5000
 ```
 
 如果 `rpicam-hello` 都顯示 `No cameras available`，代表問題在相機、排線、CAM/DISP 接頭或系統相機設定，不是 `main.py`。
+
+賴彥光留
+
+設定環境
+```bash
+cd ~/emotion_project
+source .venv/bin/activate
+```
+開啟影像辨識
+```bash
+python main.py
+```
+把influxDB 跟 grafana 和 web_app 用docker 打開
+```bash
+docker compose up -d influxdb grafana web_app
+```

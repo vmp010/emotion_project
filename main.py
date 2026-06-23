@@ -19,7 +19,7 @@ CAMERA_SOURCE = "picamera2"
 SHOW_LANDMARKS = False
 
 # 效能 / 準確率平衡
-ANALYZE_EVERY = 4              # 每 4 幀送一次背景分析
+ANALYZE_EVERY = 8              # 每 8 幀送一次背景分析
 ROI_SIZE = 160                 # 固定臉部輸入尺寸，提升速度
 EMA_ALPHA = 0.45               # 指數平滑，越大越靈敏
 MIN_FACE_SIZE = 50

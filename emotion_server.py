@@ -26,9 +26,21 @@ def add_cors(response):
 def query_latest():
     flux = f'''
     from(bucket: "{INFLUX_BUCKET}")
-        |> range(start: -10s)
+        |> range(start: -5m)
         |> filter(fn: (r) => r._measurement == "{INFLUX_MEASUREMENT}")
+        |> filter(fn: (r) =>
+            r._field == "happy" or
+            r._field == "sad" or
+            r._field == "angry" or
+            r._field == "neutral" or
+            r._field == "fps" or
+            r._field == "face_detected" or
+            r._field == "face_count"
+        )
+        |> map(fn: (r) => ({{ r with _value: float(v: r._value) }}))
+        |> group(columns: ["source", "camera_index", "dominant_emotion", "quality"])
         |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
+        |> group()
         |> sort(columns: ["_time"], desc: true)
         |> limit(n: 1)
     '''
